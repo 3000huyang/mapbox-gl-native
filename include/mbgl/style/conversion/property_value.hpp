@@ -54,13 +54,15 @@ struct Converter<PropertyValue<T>> {
             return {};
         } else if (!(*expression).isZoomConstant()) {
             return { std::move(*expression) };
-        } else {
+        } else if ((*expression).getExpression().getStrategy() == Strategy::Literal) {
             optional<T> constant = fromExpressionValue<T>(
-                dynamic_cast<const Literal&>((*expression).getExpression()).getValue());
+                static_cast<const Literal&>((*expression).getExpression()).getValue());
             if (!constant) {
                 return {};
             }
             return PropertyValue<T>(*constant);
+        } else {
+            return {};
         }
     }
 };

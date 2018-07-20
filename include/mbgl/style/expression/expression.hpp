@@ -113,9 +113,32 @@ public:
     ParseResult ExpressionClass::parse(const V&, ParsingContext),
     which handles parsing a style-spec JSON representation of the expression.
 */
+
+enum class Strategy : int32_t {
+    Coalesce,
+    CompoundExpression,
+    Literal,
+    ArrayAssertion,
+    At,
+    Interpolate,
+    Assertion,
+    Length,
+    Step,
+    Let,
+    Var,
+    CollatorExpression,
+    Coercion,
+    Match,
+    Error,
+    Case,
+    Any,
+    All,
+    Equals,
+};
+
 class Expression {
 public:
-    Expression(type::Type type_) : type(std::move(type_)) {}
+    Expression(Strategy strategy_, type::Type type_) : strategy(strategy_), type(std::move(type_)) {}
     virtual ~Expression() = default;
     
     virtual EvaluationResult evaluate(const EvaluationContext& params) const = 0;
@@ -125,6 +148,7 @@ public:
         return !operator==(rhs);
     }
 
+    Strategy getStrategy() const { return strategy; };
     type::Type getType() const { return type; };
     
     EvaluationResult evaluate(optional<float> zoom, const Feature& feature, optional<double> heatmapDensity) const;
@@ -182,6 +206,7 @@ protected:
     }
 
 private:
+    Strategy strategy;
     type::Type type;
 };
 
